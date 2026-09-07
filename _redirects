@@ -1,0 +1,6 @@
+# Netlify Redirects file
+# Rewrite any legacy /static/* asset requests to the root
+/static/*  /:splat                                         200
+
+# Single page application fallback
+/*      /index.html                                     200

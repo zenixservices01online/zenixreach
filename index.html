@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenix Reach AI — Local Business Discovery & Automated Outreach</title>
+  <meta name="description" content="Autonomous agent for discovering local business leads, extracting verified emails from Google Maps and web directories, and sending cold outreach from zenixservices67@gmail.com.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=13">
+</head>
+<body>
+  <!-- Ambient background glow effects -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <span class="logo-icon">⚡</span>
+          <div class="logo-text">
+            <h1>Zenix Reach <span>AI</span></h1>
+            <p class="tagline">Local Business Discovery & Automated Email Outreach</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-status-group">
+        <div class="sender-identity-pill" title="Outreach Sender Mailbox">
+          <span class="pill-dot"></span>
+          <span class="pill-sender">From: <strong id="headerSenderEmail">zenixservices67@gmail.com</strong></span>
+          <a href="https://zenixservices.online" target="_blank" rel="noopener" class="pill-link" title="Agency Portfolio">zenixservices.online ↗</a>
+        </div>
+
+        <div class="mode-pill" id="dryRunIndicator" title="Click to change in Settings">
+          <span class="pulse-dot active"></span>
+          <span id="modeText">Simulation Mode (Safe)</span>
+        </div>
+
+        <button class="btn btn-outline btn-sm" id="toggleLogsBtn" title="View email dispatch logs">
+          📜 History (<span id="logCountBadge">0</span>)
+        </button>
+
+        <button class="btn btn-secondary btn-sm" id="headerSettingsBtn" title="Open Settings">
+          ⚙️ Settings
+        </button>
+      </div>
+    </header>
+
+    <!-- Locality Search Hero Section -->
+    <section class="search-hero-card">
+      <div class="hero-top-row">
+        <div class="hero-title-group">
+          <h2>Find Local Businesses & Verified Emails</h2>
+          <p>Scan any city, neighborhood, or locality. The agent extracts phone numbers, websites, and emails from Google Maps & public web records.</p>
+        </div>
+        <div class="quick-chips">
+          <span class="chips-label">Quick search (India):</span>
+          <button type="button" class="chip-btn" data-loc="Ranchi, Jharkhand">Ranchi</button>
+          <button type="button" class="chip-btn" data-loc="Hinoo, Ranchi">Hinoo</button>
+          <button type="button" class="chip-btn" data-loc="Lalpur, Ranchi">Lalpur</button>
+          <button type="button" class="chip-btn" data-loc="Harmu, Ranchi">Harmu</button>
+          <button type="button" class="chip-btn" data-loc="Doranda, Ranchi">Doranda</button>
+          <button type="button" class="chip-btn" data-loc="Bariatu, Ranchi">Bariatu</button>
+          <button type="button" class="chip-btn" data-loc="Kanke, Ranchi">Kanke</button>
+          <button type="button" class="chip-btn" data-loc="Patna, Bihar">Patna</button>
+          <button type="button" class="chip-btn" data-loc="Boring Road, Patna">Boring Rd</button>
+          <button type="button" class="chip-btn" data-loc="Lucknow, Uttar Pradesh">Lucknow</button>
+          <button type="button" class="chip-btn" data-loc="Connaught Place, Delhi">Delhi</button>
+        </div>
+      </div>
+
+      <form id="discoveryForm" class="locality-search-form">
+        <div class="search-input-group">
+          <span class="search-pin-icon">📍</span>
+          <input 
+            type="text" 
+            id="locationInput" 
+            placeholder="Enter Indian locality or city (e.g. Ranchi, Hinoo, Lalpur, Harmu, Patna, Lucknow)..." 
+            value="Ranchi, Jharkhand" 
+            required 
+            autocomplete="off"
+          >
+          <button type="submit" class="btn btn-primary search-submit-btn" id="discoverBtn">
+            <span class="btn-text">🚀 Scan Locality & Fetch Emails</span>
+            <span class="spinner hidden" id="discoverSpinner"></span>
+          </button>
+        </div>
+
+        <div class="niche-selector-row">
+          <span class="niche-label">Target Niche:</span>
+          <div class="niche-pills" id="nichePills">
+            <button type="button" class="niche-pill active" data-category="all">⚡ All Categories <span class="pill-count" id="countPillAll">0</span></button>
+            <button type="button" class="niche-pill" data-category="restaurant">🍽️ Restaurants & Cafes <span class="pill-count" id="countPillRestaurant">0</span></button>
+            <button type="button" class="niche-pill" data-category="physiotherapy">🏃‍♂️ Physiotherapy & Rehab <span class="pill-count" id="countPillPhysio">0</span></button>
+            <button type="button" class="niche-pill" data-category="dental">🦷 Dental Clinics <span class="pill-count" id="countPillDental">0</span></button>
+            <button type="button" class="niche-pill" data-category="small_clinic">🏥 Small & General Clinics <span class="pill-count" id="countPillClinics">0</span></button>
+            <button type="button" class="niche-pill" data-category="small_enterprise">💼 Small Businesses <span class="pill-count" id="countPillSmall">0</span></button>
+          </div>
+          <input type="hidden" id="categorySelect" value="all">
+          <input type="hidden" id="radiusSelect" value="5000">
+        </div>
+      </form>
+    </section>
+
+    <!-- Metrics Stats Summary (Clickable Filters) -->
+    <section class="metrics-grid" aria-label="System Metrics">
+      <div class="metric-card metric-clickable" id="metricCardTotal" title="Click to show all discovered leads">
+        <div class="metric-icon-wrap" style="--accent: #6366f1;">📍</div>
+        <div class="metric-info">
+          <span class="metric-label">Discovered Leads</span>
+          <span class="metric-value" id="statTotalLeads">0</span>
+        </div>
+      </div>
+
+      <div class="metric-card metric-clickable" id="metricCardEmail" title="Click to filter businesses with verified emails">
+        <div class="metric-icon-wrap" style="--accent: #10b981;">✉️</div>
+        <div class="metric-info">
+          <span class="metric-label">Verified Emails Ready</span>
+          <span class="metric-value" id="statWithEmail">0</span>
+        </div>
+      </div>
+
+      <div class="metric-card metric-clickable" id="metricCardNoWeb" title="Click to filter businesses needing a website">
+        <div class="metric-icon-wrap" style="--accent: #f59e0b;">🌐</div>
+        <div class="metric-info">
+          <span class="metric-label">Needs Website Upgrade</span>
+          <span class="metric-value" id="statNeedingWebsite">0</span>
+        </div>
+      </div>
+
+      <div class="metric-card metric-clickable" id="metricCardDispatched" title="Click to view email history logs">
+        <div class="metric-icon-wrap" style="--accent: #ec4899;">🚀</div>
+        <div class="metric-info">
+          <span class="metric-label">Emails Dispatched</span>
+          <span class="metric-value" id="statDispatched">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Discovered Leads Workspace -->
+    <section class="leads-workspace">
+      <!-- Toolbar & Filters -->
+      <div class="workspace-toolbar">
+        <div class="search-filter-box">
+          <span class="search-icon">🔎</span>
+          <input type="text" id="leadsSearchInput" placeholder="Filter discovered businesses by name, email, or address...">
+        </div>
+
+        <div class="filter-dropdowns">
+          <select id="filterWebsiteStatus" title="Filter by web presence">
+            <option value="all">All Web Presence</option>
+            <option value="no_website">🚨 Needs Website (Prime Leads)</option>
+            <option value="has_website">🌐 Has Existing Website</option>
+            <option value="with_phone">📞 Has Phone Number</option>
+          </select>
+
+          <select id="filterEmailStatus" title="Filter by email availability">
+            <option value="all">All Email Status</option>
+            <option value="with_email">✉️ With Email Only</option>
+            <option value="needs_email">🔍 Missing Email Only</option>
+          </select>
+
+          <select id="filterCategory" title="Filter by business niche">
+            <option value="all">All Categories</option>
+            <option value="Restaurant / Cafe">Restaurants & Cafes</option>
+            <option value="Physiotherapy Clinic">Physiotherapy & Rehab</option>
+            <option value="Dental Clinic">Dental Clinics</option>
+            <option value="Small / General Clinic">Small & General Clinics</option>
+            <option value="Small Enterprise">Small Enterprise</option>
+          </select>
+        </div>
+
+        <div class="workspace-actions">
+          <button class="btn btn-secondary btn-sm" id="enrichAllBtn" title="Deep-scan public search & websites for missing emails">
+            ✨ Auto-Find Missing Emails
+          </button>
+          <button class="btn btn-primary btn-sm" id="batchSendModalBtn" title="Send cold pitches to selected businesses with email">
+            📨 Batch Outreach (<span id="batchSendCountBadge">0</span>)
+          </button>
+          <button class="btn btn-outline btn-sm" id="exportCsvBtn" title="Download CSV">
+            📥 CSV
+          </button>
+          <button class="btn btn-danger-outline btn-sm" id="clearLeadsBtn" title="Clear leads list">
+            🗑️ Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Filter Pills -->
+      <div class="workspace-quick-filters" style="display: flex; gap: 0.5rem; margin-bottom: 0.85rem; flex-wrap: wrap;">
+        <button type="button" class="qfilter-pill active" data-qfilter="all">⚡ All Leads (<span id="qcountAll">0</span>)</button>
+        <button type="button" class="qfilter-pill highlight-noweb" data-qfilter="no_website">🚨 Needs Website (<span id="qcountNoWeb">0</span>)</button>
+        <button type="button" class="qfilter-pill" data-qfilter="with_email">✉️ Email Ready (<span id="qcountEmail">0</span>)</button>
+        <button type="button" class="qfilter-pill" data-qfilter="with_phone">📞 Phone Ready (<span id="qcountPhone">0</span>)</button>
+      </div>
+
+      <!-- Select All Bar -->
+      <div class="selection-bar" id="selectionBar">
+        <label class="select-all-label">
+          <input type="checkbox" id="selectAllLeads">
+          <span>Select All Leads</span>
+        </label>
+        <span class="selection-count-text" id="selectionCountText">0 selected</span>
+      </div>
+
+      <!-- Leads Cards Grid -->
+      <div class="leads-cards-container" id="leadsContainer">
+        <!-- Dynamically rendered lead cards -->
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state hidden" id="emptyLeadsState">
+        <div class="empty-icon">📍</div>
+        <h3>No Businesses Discovered in this View</h3>
+        <p>Type any city or neighborhood above (e.g. <em>"Ranchi"</em>, <em>"Hinoo"</em>, <em>"Delhi"</em>) and click <strong>Scan Locality & Fetch Emails</strong>.</p>
+        <button class="btn btn-primary btn-sm" id="loadSampleBtn">⚡ Load Sample Leads</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- EMAIL COMPOSER DRAWER / MODAL -->
+  <div class="modal-overlay hidden" id="composerModal">
+    <div class="modal-content glass-panel composer-modal-box">
+      <div class="modal-header">
+        <div class="composer-title-group">
+          <h3 id="composerLeadName">Send Outreach Email</h3>
+          <span class="composer-sender-badge">From: <strong id="composerSenderEmailDisplay">zenixservices67@gmail.com</strong></span>
+        </div>
+        <button class="close-btn" id="closeComposerModal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Lead Meta Pill Row -->
+        <div class="composer-meta-pill-row">
+          <span class="comp-tag" id="composerCategory">Dental Clinic</span>
+          <span class="comp-tag" id="composerCity">📍 Ranchi</span>
+          <span class="comp-tag" id="composerWebsite">🌐 No website found</span>
+          <span class="comp-tag score" id="composerScore">95% Opportunity</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="composerRecipient">Recipient Email Address</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="email" id="composerRecipient" placeholder="verified@business.com" required style="flex: 1;">
+              <button type="button" class="btn btn-secondary btn-sm" id="composerAutoFindBtn" style="white-space: nowrap;">🔍 Auto-Find</button>
+            </div>
+          </div>
+          <div class="form-group flex-1">
+            <label for="composerTone">Pitch Tone</label>
+            <select id="composerTone">
+              <option value="friendly" selected>🤝 Friendly & Warm</option>
+              <option value="direct">⚡ Direct & Punchy</option>
+              <option value="creative_mockup">🎨 Free Mockup Offer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="composerSubject">Email Subject Line</label>
+          <input type="text" id="composerSubject" placeholder="Personalized cold email subject line...">
+        </div>
+
+        <div class="form-group">
+          <div class="label-with-action">
+            <label for="composerBody">Email Pitch Content</label>
+            <button type="button" class="link-btn" id="regeneratePitchBtn">✨ Regenerate Pitch</button>
+          </div>
+          <textarea id="composerBody" rows="12" placeholder="Your personalized cold email body..."></textarea>
+        </div>
+
+        <div class="composer-agency-footer-note">
+          <span>📎 Automatic Agency Signature: <strong>Vishal Kumar Tiwari · Co-Founder, Zenix Services</strong> (https://zenixservices.online)</span>
+        </div>
+        <div class="composer-mode-notice" id="composerModeNotice" style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="cmn-icon">🛡️</span>
+            <span id="cmnText"><strong>Simulation Mode is ON:</strong> Safe test mode without contacting real recipients.</span>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" id="cmnSwitchLiveBtn" style="font-size: 0.75rem; padding: 4px 10px; border-color: rgba(255,255,255,0.4); color: #fff; white-space: nowrap;">⚡ Switch to Live</button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelComposerBtn">Cancel</button>
+        <button class="btn btn-outline" id="copyComposerBtn">📋 Copy Pitch</button>
+        <button class="btn btn-primary" id="sendComposerBtn">
+          <span class="btn-text" id="composerSendBtnText">🚀 Send Outreach Email</span>
+          <span class="spinner hidden" id="composerSendSpinner"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP AUTOMATED OUTREACH MODAL -->
+  <div class="modal-overlay hidden" id="whatsappModal">
+    <div class="modal-content glass-panel" style="max-width: 650px;">
+      <div class="modal-header">
+        <div class="composer-title-group">
+          <h3 id="whatsappLeadName">💬 Direct WhatsApp Outreach</h3>
+          <span class="composer-sender-badge" id="whatsappPhoneBadge">Phone: +91 ...</span>
+        </div>
+        <button class="close-btn" id="closeWhatsappModal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="whatsappPhoneInput">Recipient Mobile Number (Indian 10-Digit Mobile)</label>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <div style="position: relative; flex: 1;">
+              <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: 600; color: var(--text-dim);">+91</span>
+              <input type="text" id="whatsappPhoneInput" placeholder="9876543210" style="padding-left: 46px;" maxlength="15">
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="whatsappAutoFindBtn" style="white-space: nowrap;">
+              🔍 Auto-Find Phone
+            </button>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.25rem; display: block;">
+            Valid Indian mobile numbers start with 6, 7, 8, or 9. Clicking 'Open in WhatsApp' will save this number to the lead.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="whatsappTemplateSelect">Choose WhatsApp Pitch Template</label>
+          <select id="whatsappTemplateSelect">
+            <option value="general" selected>🚀 Website Modernization & Online Growth</option>
+            <option value="restaurant">🍽️ Digital QR Menu & Direct Online Ordering (Restaurants)</option>
+            <option value="dental">🦷 24/7 Online Patient Appointment Booking (Clinics)</option>
+            <option value="mockup">🎨 Free Mockup Preview Offer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="whatsappMessageText">WhatsApp Message Preview</label>
+          <textarea id="whatsappMessageText" rows="9" placeholder="Customized WhatsApp message..."></textarea>
+        </div>
+
+        <div class="composer-agency-footer-note">
+          <span>📲 Clicking <strong>Open in WhatsApp Chat</strong> launches WhatsApp Web or your WhatsApp Desktop app directly with the client's number and pre-filled message!</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelWhatsappBtn">Cancel</button>
+        <button class="btn btn-outline" id="copyWhatsappBtn">📋 Copy Text</button>
+        <button class="btn btn-primary" id="openWhatsappBtn" style="background: linear-gradient(135deg, #10b981, #059669); border: none;">
+          💬 Open in WhatsApp Chat →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISPATCH LOGS & HISTORY SLIDE-OVER DRAWER -->
+  <div class="drawer-overlay hidden" id="logsDrawerOverlay">
+    <div class="drawer-content glass-panel" id="logsDrawer">
+      <div class="drawer-header">
+        <div class="drawer-title-group">
+          <h3>Email Dispatch History & Logs</h3>
+          <p id="logsDrawerSubtitle">Real-time record of outreach emails sent from <strong id="logsSenderEmail">zenixservices67@gmail.com</strong></p>
+        </div>
+        <button class="close-btn" id="closeLogsDrawer">&times;</button>
+      </div>
+
+      <div class="drawer-body">
+        <div class="terminal-body" id="terminalLogs">
+          <div class="log-line info">[SYSTEM] Zenix Reach AI initialized. Ready for operations.</div>
+        </div>
+      </div>
+
+      <div class="drawer-footer">
+        <button class="btn btn-secondary btn-sm" id="refreshLogsBtn">↻ Refresh Logs</button>
+        <button class="btn btn-outline btn-sm" id="closeLogsDrawerBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal-overlay hidden" id="settingsModal">
+    <div class="modal-content glass-panel settings-modal-box">
+      <div class="modal-header">
+        <h3>Agent & SMTP Configuration</h3>
+        <button class="close-btn" id="closeSettingsModal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Prominent Gmail Sent Folder Instructions -->
+        <div style="margin-bottom: 1.25rem; padding: 0.85rem 1rem; border-radius: 8px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.84rem; line-height: 1.5; color: #fbbf24;">
+          <strong style="color: #fef08a; font-size: 0.9rem;">📬 How to send emails so they land in client inboxes AND your Gmail "Sent" folder:</strong>
+          <ul style="margin: 0.4rem 0 0 1.2rem; padding: 0;">
+            <li>In <strong>Simulation Mode</strong>, emails are safely previewed but not actually sent through Google's servers.</li>
+            <li>To dispatch <strong>real emails</strong>: generate a 16-character <strong>Google App Password</strong> below, test it, and toggle <strong>Simulation Mode to OFF</strong>.</li>
+            <li>Dispatched emails will immediately appear in your official <strong id="settingsSentFolderEmail">zenixservices67@gmail.com</strong> Gmail Sent folder!</li>
+          </ul>
+        </div>
+
+        <!-- Netlify Alert Banner -->
+        <div id="netlifyAlertBanner" style="display: none; margin-bottom: 1.25rem; padding: 0.85rem 1rem; border-radius: 8px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); font-size: 0.85rem; line-height: 1.5; color: #bae6fd;">
+          <strong style="color: #38bdf8; font-size: 0.9rem;">🌐 You are viewing the app on Netlify:</strong>
+          <p style="margin: 0.35rem 0 0 0;">
+            Netlify only hosts static frontend pages. For live Gmail sending, lead scanning, and SQLite database storage:
+          </p>
+          <ul style="margin: 0.3rem 0 0 1.2rem; padding: 0;">
+            <li><strong>Recommended:</strong> Open the dashboard locally on your Mac at <a href="http://localhost:8000" target="_blank" rel="noopener" style="color: #67e8f9; font-weight: bold; text-decoration: underline;">http://localhost:8000 ↗</a> (Everything runs with full features!).</li>
+            <li><strong>Or:</strong> If you deployed your Python backend to Render / Railway, enter the backend URL below and click Save Settings.</li>
+          </ul>
+        </div>
+
+        <!-- Backend URL Configuration (for Netlify/Decoupled deployments) -->
+        <div class="settings-section" style="border-left: 3px solid #38bdf8; padding-left: 0.85rem;">
+          <div class="section-title-row">
+            <h4>Cloud Backend URL (For Netlify Hosting)</h4>
+            <span class="tip-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">Netlify / Cloud</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.3rem 0 0.6rem 0;">
+            If hosting on Netlify, enter your deployed Python API URL (e.g. <code>https://zenix-reach-api.onrender.com</code>). Leave empty when running locally or on the same server.
+          </p>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="settingBackendUrl">Python Backend API URL</label>
+              <input type="url" id="settingBackendUrl" placeholder="https://zenix-reach-api.onrender.com (or empty for local/default)">
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h4>Sender Profile</h4>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="settingSenderName">Sender Name</label>
+              <input type="text" id="settingSenderName" value="Vishal Kumar Tiwari">
+            </div>
+            <div class="form-group flex-1">
+              <label for="settingSenderCompany">Agency Name</label>
+              <input type="text" id="settingSenderCompany" value="Zenix Services">
+            </div>
+          </div>
+          <div class="form-row" style="margin-top: 0.75rem;">
+            <div class="form-group flex-1">
+              <label for="settingSenderEmail">Sender Email Address</label>
+              <input type="email" id="settingSenderEmail" value="zenixservices67@gmail.com" placeholder="yourname@gmail.com">
+            </div>
+            <div class="form-group flex-1">
+              <label for="settingSenderWebsite">Agency Portfolio Website</label>
+              <input type="url" id="settingSenderWebsite" value="https://zenixservices.online">
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title-row">
+            <h4 id="settingsSmtpHeading">Live Gmail SMTP Setup</h4>
+            <span class="tip-badge">Simple 3-Step Setup</span>
+          </div>
+
+          <div class="smtp-help-box">
+            <ol class="shb-list">
+              <li>Turn on <strong>2-Step Verification</strong> at <a href="https://myaccount.google.com/security" target="_blank" rel="noopener">myaccount.google.com/security ↗</a>.</li>
+              <li>Generate a 16-character code at <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">Google App Passwords ↗</a> (Enter name <em>"LocalReach"</em>).</li>
+              <li>Paste the 16 characters below and click <strong>⚡ Test Connection</strong>.</li>
+            </ol>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="settingSmtpUser">Gmail Address</label>
+              <input type="text" id="settingSmtpUser" value="zenixservices67@gmail.com" placeholder="yourname@gmail.com">
+            </div>
+            <div class="form-group flex-1">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                <label for="settingSmtpPass" style="margin-bottom: 0;">Gmail 16-Char App Password</label>
+                <span class="badge-char-count" id="passCharCount">0/16 chars</span>
+              </div>
+              <input type="password" id="settingSmtpPass" placeholder="e.g. abcd efgh ijkl mnop" autocomplete="new-password">
+            </div>
+          </div>
+
+          <div class="smtp-test-row" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" id="testSmtpBtn">⚡ Test Connection</button>
+            <button type="button" class="btn btn-primary btn-sm" id="sendTestEmailBtn" title="Send a real verification email to verify inbox delivery">📩 Send Test Email to My Gmail</button>
+            <span class="smtp-test-result" id="smtpTestResult"></span>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="mode-toggle-box">
+            <div class="toggle-info">
+              <strong>Simulation / Safe Test Mode</strong>
+              <p>Simulates email sending safely without contacting real recipients. Turn OFF when your Gmail App Password is configured to send real live emails.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="campaignDryRunToggle" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelSettingsBtn">Cancel</button>
+        <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js?v=13"></script>
+</body>
+</html>
